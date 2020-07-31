@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   php:
-    user: "$USER_ID:$GROUP_ID"
+    user: ${FIXUID:-1000}:${FIXGID:-1000}
     build:
       context: ./docker
     ports:
@@ -10,9 +10,16 @@ services:
       - .:/app
     environment:
       COMPOSER_HOME: /tmp/composer
+
   mysql:
     image: mysql:5.7
     environment:
       MYSQL_DATABASE: symfony
-      MYSQL_ROOT_PASSWORD:
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_ROOT_PASSWORD: symfony
+
+  adminer:
+    image: adminer:4.7
+    links:
+      - "mysql:db"
+    ports:
+      - "8080:8080"
