@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Domain\Data\Model\Bookmark" table="bookmarks" inheritance-type="SINGLE_TABLE">
+        <discriminator-column name="type" type="string" />
+        <discriminator-map>
+            <discriminator-mapping value="vimeo" class="App\Domain\Data\Model\VimeoBookmark" />
+            <discriminator-mapping value="flickr" class="App\Domain\Data\Model\FlickrBookmark" />
+        </discriminator-map>
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="url" type="text" />
+        <field name="title" type="string" nullable="true" />
+        <field name="author" type="string" nullable="true" />
+        <field name="addedAt" type="datetime_immutable" />
+    </entity>
+
+</doctrine-mapping>
