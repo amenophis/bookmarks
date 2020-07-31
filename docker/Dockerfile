@@ -1,17 +1,25 @@
-# Leeloo multistage
+FROM php:7.4.8-zts-alpine3.12
 
-# Stage 0
-FROM composer:1.7.0 AS composer
-
-# Stage 1
-FROM php:7.3.10-zts-alpine3.10
-
-COPY --from=composer /usr/bin/composer /usr/bin/composer
+COPY --from=composer:1.7.0 /usr/bin/composer /usr/bin/composer
 
 RUN docker-php-ext-install -j$(nproc) pdo_mysql
 
-WORKDIR /app
+# install fixuid
+RUN addgroup -g 1000 docker && \
+    adduser -u 1000 -G docker -h /home/docker -s /bin/sh -D docker
+
+RUN USER=docker && \
+    GROUP=docker && \
+    curl -SsL https://github.com/boxboat/fixuid/releases/download/v0.5/fixuid-0.5-linux-amd64.tar.gz | tar -C /usr/local/bin -xzf - && \
+    chown root:root /usr/local/bin/fixuid && \
+    chmod 4755 /usr/local/bin/fixuid && \
+    mkdir -p /etc/fixuid && \
+    printf "user: $USER\ngroup: $GROUP\n" > /etc/fixuid/config.yml
 
 EXPOSE 8000
 
+WORKDIR /app
+
+USER docker:docker
+ENTRYPOINT ["fixuid"]
 CMD ["./entrypoint.sh"]
