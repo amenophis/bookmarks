@@ -1,6 +1,10 @@
 FROM php:7.4.8-zts-alpine3.12
 
+ENV IS_DOCKER true
+
 COPY --from=composer:1.7.0 /usr/bin/composer /usr/bin/composer
+
+RUN apk add --no-cache make
 
 RUN docker-php-ext-install -j$(nproc) pdo_mysql
 
@@ -15,6 +19,10 @@ RUN USER=docker && \
     chmod 4755 /usr/local/bin/fixuid && \
     mkdir -p /etc/fixuid && \
     printf "user: $USER\ngroup: $GROUP\n" > /etc/fixuid/config.yml
+
+RUN \
+    wget -O /usr/local/bin/waitforit https://github.com/maxcnunes/waitforit/releases/download/v2.4.1/waitforit-linux_amd64 && \
+    chmod +x /usr/local/bin/waitforit
 
 EXPOSE 8000
 
