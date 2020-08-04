@@ -44,4 +44,8 @@ jobs:
         run: php vendor/bin/phpunit --testsuite unit
 
       - name: Run PHPUnit - Func
-        run: php vendor/bin/phpunit --testsuite unit
+        run: |
+          php bin/console --env=test do:da:dr --if-exists --no-interaction --force
+          php bin/console --env=test do:da:cr --if-not-exists --no-interaction
+          php bin/console --env=test do:mi:mi --no-interaction
+          php vendor/bin/phpunit --testsuite func

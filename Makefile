@@ -98,6 +98,9 @@ unit-test: ## Run PhpUnit unit tests
 
 .PHONY: func-test
 func-test: start ## Run PhpUnit func tests
+	@$(PHP_EXEC) bin/console --env=test do:da:dr --if-exists --no-interaction --force
+	@$(PHP_EXEC) bin/console --env=test do:da:cr --if-not-exists --no-interaction
+	@$(PHP_EXEC) bin/console --env=test do:mi:mi --no-interaction
 	@$(PHP_EXEC) vendor/bin/phpunit -v --testsuite func --testdox
 
 

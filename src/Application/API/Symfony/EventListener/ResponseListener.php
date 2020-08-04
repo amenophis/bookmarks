@@ -40,7 +40,7 @@ class ResponseListener
                 break;
         }
 
-        $json     = $this->serializer->serialize($result, $event->getRequest()->getContentType());
+        $json     = $this->serializer->serialize($result, 'json');
         $response = new JsonResponse($json, $statusCode, [], true);
 
         $event->setResponse($response);
@@ -55,7 +55,7 @@ class ResponseListener
 
         $result = $this->serializer->serialize(
             new ViolationListResult($throwable->getViolations()),
-            $event->getRequest()->getContentType()
+            'json'
         );
         $response = new JsonResponse($result, 400, [], true);
 
