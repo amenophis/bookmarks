@@ -11,7 +11,7 @@ class FlickrBookmark extends Bookmark
     private int $width;
     private int $height;
 
-    public static function create(string $url, \DateTimeInterface $addedAt, URIMetadata $metadata): self
+    public static function create(string $url, \DateTimeInterface $addedAt, ?URIMetadata $metadata = null): self
     {
         $self         = new self($url, $addedAt, $metadata);
         $self->width  = (int) $metadata->get('width');

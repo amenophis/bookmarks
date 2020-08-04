@@ -9,4 +9,9 @@ use App\Domain\Data\Model\Bookmark;
 interface Bookmarks
 {
     public function save(Bookmark $bookmark): void;
+
+    /**
+     * @return Bookmark[]
+     */
+    public function all(): array;
 }

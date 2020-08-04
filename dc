@@ -1,3 +1,0 @@
-# This script is a wrapper around docker-compose that allows services to be run under the current user
-
-FIXUID=`id -u` FIXGID=`id -g` docker-compose $@

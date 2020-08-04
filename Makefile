@@ -15,89 +15,113 @@ define log_error
 	echo "[$(COLOR_ERROR)$(shell date +"%T")$(COLOR_RESET)][$(COLOR_ERROR)$(@)$(COLOR_RESET)] $(COLOR_ERROR)$(1)$(COLOR_RESET)"
 endef
 
-ifeq ($(IS_DOCKER),true)
-	PHP_RUN := php
-	PHP_EXEC := php
-else
-	PHP_RUN := ./dc run --no-deps php
-	PHP_EXEC := ./dc exec php
-endif
+CURRENT_USER := $(shell id -u)
+CURRENT_GROUP := $(shell id -g)
+
+DOCKER_COMPOSE := FIXUID=$(CURRENT_USER) FIXGID=$(CURRENT_GROUP) docker-compose
+PHP_RUN := $(DOCKER_COMPOSE) run --no-deps --rm php
+PHP_EXEC := $(DOCKER_COMPOSE) exec -T php
 
 .DEFAULT_GOAL := help
 .PHONY: help
 help:
 	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $$(echo '$(MAKEFILE_LIST)' | cut -d ' ' -f2) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
-.PHONY: build
-build: ## Build the docker stack
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
-	@$(call log_success,Building the docker stack ...)
-	@./dc build
+var:
+	@mkdir -p var
+
+build: var/docker.build ## Build the docker stack
+var/docker.build: var docker/Dockerfile
+	@$(call log,Building docker images ...)
+	@$(DOCKER_COMPOSE) build
+	@touch var/docker.build
+	@$(call log_success,Done)
+
+.PHONY: pull
+pull: ## Pulling docker images
+	@$(call log,Pulling docker images ...)
+	@$(DOCKER_COMPOSE) pull
 	@$(call log_success,Done)
 
 .PHONY: shell
-shell: ## Enter in the PHP container
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
-	@$(call log_success,Entering inside php container ...)
-	@./dc exec php ash
+shell: start ## Enter in the PHP container
+	@$(call log,Entering inside php container ...)
+	@$(DOCKER_COMPOSE) exec php ash
 
-.PHONY: start
-start: build ## Start the docker stack
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
-	@$(call log_success,Starting the docker stack ...)
-	@./dc up -d
+start: var/docker.up ## Start the docker stack
+var/docker.up: var var/docker.build vendor
+	@$(call log,Starting the docker stack ...)
+	@$(DOCKER_COMPOSE) up -d
+	@touch var/docker.up
 	@$(call log_success,Done)
 
 .PHONY: stop
 stop: ## Stop the docker stack
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
-	@$(call log_success,Stopping the docker stack ...)
-	@./dc stop
+	@$(call log,Stopping the docker stack ...)
+	@$(DOCKER_COMPOSE) stop
+	@rm -rf var/docker.up
 	@$(call log_success,Done)
 
 .PHONY: clean
 clean: stop ## Clean the docker stack
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
-	@$(call log_success,Cleaning the docker stack ...)
-	@./dc down
+	@$(call log,Cleaning the docker stack ...)
+	@$(DOCKER_COMPOSE) down
+	@rm -rf var/ vendor/
+	@$(call log_success,Done)
+
+vendor: var/docker.build composer.json composer.lock ## Install composer dependencies
+	@$(call log,Installing vendor ...)
+	@mkdir -p vendor
+	@$(PHP_RUN) composer install
+	@$(call log_success,Done)
+
+.PHONY: db
+db: var/docker.up
+	@$(call log,Preparing db ...)
+	@$(PHP_RUN) waitforit -host=mysql -port=3306
+	@$(PHP_RUN) bin/console -v -n doctrine:database:drop --if-exists --force
+	@$(PHP_RUN) bin/console -v -n doctrine:database:create
+	@$(PHP_RUN) bin/console -v -n doctrine:migration:migrate
+	@$(call log_success,Done)
+
+.PHONY: db-test
+db-test: var/docker.up
+	@$(call log,Preparing test db ...)
+	@$(PHP_RUN) waitforit -host=mysql -port=3306
+	@$(PHP_RUN) bin/console --env=test -v -n doctrine:database:drop --if-exists --force
+	@$(PHP_RUN) bin/console --env=test -v -n doctrine:database:create
+	@$(PHP_RUN) bin/console --env=test -v -n doctrine:migration:migrate
 	@$(call log_success,Done)
 
 .PHONY: qa
 qa: php-cs-fixer-check phpstan unit-test func-test ## Run QA targets
 
 .PHONY: php-cs-fixer-check
-php-cs-fixer-check: ## Check code style
+php-cs-fixer-check: vendor ## Check code style
+	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation
+	@$(call log_success,Done)
 
 .PHONY: php-cs-fixer-fix
-php-cs-fixer-fix: ## Auto fix code style
+php-cs-fixer-fix: vendor ## Auto fix code style
+	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/php-cs-fixer fix
+	@$(call log_success,Done)
 
 .PHONY: phpstan
-phpstan: ## Analyze code with phpstan
+phpstan: vendor ## Analyze code with phpstan
+	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/phpstan analyze
+	@$(call log_success,Done)
 
 .PHONY: unit-test
-unit-test: ## Run PhpUnit unit tests
+unit-test: vendor ## Run PhpUnit unit testsuite
+	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/phpunit -v --testsuite unit --testdox
+	@$(call log_success,Done)
 
 .PHONY: func-test
-func-test: start ## Run PhpUnit func tests
-	@$(PHP_EXEC) vendor/bin/phpunit -v --testsuite func --testdox
-
-
+func-test: db-test ## Run PhpUnit func testsuite
+	@$(call log,Running ...)
+	$(PHP_EXEC) vendor/bin/phpunit -v --testsuite func --testdox
+	@$(call log_success,Done)

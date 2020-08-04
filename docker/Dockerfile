@@ -1,17 +1,13 @@
-FROM php:7.4.8-zts-alpine3.12
+FROM php:7.4.9-zts-alpine3.12
 
-ENV IS_DOCKER true
-
+# Install composer
 COPY --from=composer:1.7.0 /usr/bin/composer /usr/bin/composer
 
-RUN apk add --no-cache make
-
-RUN docker-php-ext-install -j$(nproc) pdo_mysql
-
-# install fixuid
+# Creating docker user
 RUN addgroup -g 1000 docker && \
     adduser -u 1000 -G docker -h /home/docker -s /bin/sh -D docker
 
+# Installing fixuid (https://github.com/boxboat/fixuid)
 RUN USER=docker && \
     GROUP=docker && \
     curl -SsL https://github.com/boxboat/fixuid/releases/download/v0.5/fixuid-0.5-linux-amd64.tar.gz | tar -C /usr/local/bin -xzf - && \
@@ -20,14 +16,20 @@ RUN USER=docker && \
     mkdir -p /etc/fixuid && \
     printf "user: $USER\ngroup: $GROUP\n" > /etc/fixuid/config.yml
 
+# Install waitforit (https://github.com/maxcnunes/waitforit)
 RUN \
     wget -O /usr/local/bin/waitforit https://github.com/maxcnunes/waitforit/releases/download/v2.4.1/waitforit-linux_amd64 && \
     chmod +x /usr/local/bin/waitforit
 
-EXPOSE 8000
+# Install make
+RUN apk add --no-cache make
 
-WORKDIR /app
+# Install php extensions
+RUN docker-php-ext-install -j$(nproc) pdo_mysql
 
 USER docker:docker
+
+EXPOSE 8000
+WORKDIR /app
 ENTRYPOINT ["fixuid"]
-CMD ["./entrypoint.sh"]
+CMD ["bin/console", "server:run", "0.0.0.0:8000"]

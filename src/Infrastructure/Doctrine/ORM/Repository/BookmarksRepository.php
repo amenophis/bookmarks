@@ -24,4 +24,9 @@ class BookmarksRepository extends ServiceEntityRepository implements Bookmarks
         $this->_em->persist($bookmark);
         $this->_em->flush();
     }
+
+    public function all(): array
+    {
+        return $this->findAll();
+    }
 }
