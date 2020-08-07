@@ -19,7 +19,7 @@ ifeq ($(IS_DOCKER),true)
 	PHP_RUN := php
 	PHP_EXEC := php
 else
-	PHP_RUN := ./dc run --no-deps php
+	PHP_RUN := ./dc run --no-deps --rm php
 	PHP_EXEC := ./dc exec php
 endif
 
@@ -28,32 +28,35 @@ endif
 help:
 	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $$(echo '$(MAKEFILE_LIST)' | cut -d ' ' -f2) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
-.PHONY: build
-build: ## Build the docker stack
+
+build: var/docker.build ## Build the docker stack
+
+var/docker.build: docker/Dockerfile
 ifeq ($(IS_DOCKER),true)
 	@$(call log_error,Target must be run outside docker)
 	exit 1;
 endif
-	@$(call log_success,Building the docker stack ...)
+	@$(call log,Building the docker stack ...)
 	@./dc build
+	touch var/docker.build
 	@$(call log_success,Done)
 
 .PHONY: shell
-shell: ## Enter in the PHP container
+shell: start ## Enter in the PHP container
 ifeq ($(IS_DOCKER),true)
 	@$(call log_error,Target must be run outside docker)
 	exit 1;
 endif
-	@$(call log_success,Entering inside php container ...)
+	@$(call log,Entering inside php container ...)
 	@./dc exec php ash
 
 .PHONY: start
-start: build ## Start the docker stack
+start: build vendor ## Start the docker stack
 ifeq ($(IS_DOCKER),true)
 	@$(call log_error,Target must be run outside docker)
 	exit 1;
 endif
-	@$(call log_success,Starting the docker stack ...)
+	@$(call log,Starting the docker stack ...)
 	@./dc up -d
 	@$(call log_success,Done)
 
@@ -63,7 +66,7 @@ ifeq ($(IS_DOCKER),true)
 	@$(call log_error,Target must be run outside docker)
 	exit 1;
 endif
-	@$(call log_success,Stopping the docker stack ...)
+	@$(call log,Stopping the docker stack ...)
 	@./dc stop
 	@$(call log_success,Done)
 
@@ -73,8 +76,28 @@ ifeq ($(IS_DOCKER),true)
 	@$(call log_error,Target must be run outside docker)
 	exit 1;
 endif
-	@$(call log_success,Cleaning the docker stack ...)
+	@$(call log,Cleaning the docker stack ...)
 	@./dc down
+	rm var/docker.build
+	@$(call log_success,Done)
+
+vendor: composer.json composer.lock
+	@$(call log,Installing vendor ...)
+	@./dc run php composer install
+	@$(call log_success,Done)
+
+db:
+	@$(call log,Preparing db ...)
+	@$(PHP_RUN) bin/console -v -n doctrine:database:drop --if-exists --force
+	@$(PHP_RUN) bin/console -v -n doctrine:database:create
+	@$(PHP_RUN) bin/console -v -n doctrine:migration:migrate
+	@$(call log_success,Done)
+
+db-test:
+	@$(call log,Preparing test db ...)
+	@$(PHP_RUN) bin/console --env=test -v -n doctrine:database:drop --if-exists --force
+	@$(PHP_RUN) bin/console --env=test -v -n doctrine:database:create
+	@$(PHP_RUN) bin/console --env=test -v -n doctrine:migration:migrate
 	@$(call log_success,Done)
 
 .PHONY: qa
@@ -82,25 +105,31 @@ qa: php-cs-fixer-check phpstan unit-test func-test ## Run QA targets
 
 .PHONY: php-cs-fixer-check
 php-cs-fixer-check: ## Check code style
+	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation
+	@$(call log_success,Done)
 
 .PHONY: php-cs-fixer-fix
 php-cs-fixer-fix: ## Auto fix code style
+	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/php-cs-fixer fix
+	@$(call log_success,Done)
 
 .PHONY: phpstan
 phpstan: ## Analyze code with phpstan
+	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/phpstan analyze
+	@$(call log_success,Done)
 
 .PHONY: unit-test
 unit-test: ## Run PhpUnit unit tests
+	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/phpunit -v --testsuite unit --testdox
+	@$(call log_success,Done)
 
 .PHONY: func-test
-func-test: start ## Run PhpUnit func tests
-	@$(PHP_EXEC) bin/console --env=test do:da:dr --if-exists --no-interaction --force
-	@$(PHP_EXEC) bin/console --env=test do:da:cr --if-not-exists --no-interaction
-	@$(PHP_EXEC) bin/console --env=test do:mi:mi --no-interaction
+func-test: start db-test ## Run PhpUnit func tests
+	@$(call log,Running ...)
 	@$(PHP_EXEC) vendor/bin/phpunit -v --testsuite func --testdox
-
+	@$(call log_success,Done)
 

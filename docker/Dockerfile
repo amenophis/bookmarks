@@ -29,5 +29,5 @@ EXPOSE 8000
 WORKDIR /app
 
 USER docker:docker
-ENTRYPOINT ["fixuid"]
+ENTRYPOINT ["fixuid", "-q"]
 CMD ["./entrypoint.sh"]

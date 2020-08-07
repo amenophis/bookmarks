@@ -1,10 +1,6 @@
 #!/bin/sh
 
 echo ""
-echo "Install dependencies ..."
-composer install
-
-echo ""
 echo "Waiting for mysql ..."
 waitforit -host=mysql -port=3306
 
