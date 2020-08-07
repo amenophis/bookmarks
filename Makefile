@@ -29,16 +29,16 @@ help:
 	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $$(echo '$(MAKEFILE_LIST)' | cut -d ' ' -f2) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
 
-build: var/docker.build ## Build the docker stack
+build: docker.build ## Build the docker stack
 
-var/docker.build: docker/Dockerfile
+docker.build: docker/Dockerfile
 ifeq ($(IS_DOCKER),true)
 	@$(call log_error,Target must be run outside docker)
 	exit 1;
 endif
 	@$(call log,Building docker images ...)
 	@./dc build
-	touch var/docker.build
+	touch docker.build
 	@$(call log_success,Done)
 
 pull: ## Pulling docker images
@@ -87,7 +87,7 @@ ifeq ($(IS_DOCKER),true)
 endif
 	@$(call log,Cleaning the docker stack ...)
 	@./dc down
-	rm var/docker.build
+	rm docker.build
 	@$(call log_success,Done)
 
 vendor: composer.json composer.lock
