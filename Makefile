@@ -92,7 +92,7 @@ endif
 
 vendor: composer.json composer.lock
 	@$(call log,Installing vendor ...)
-	@./dc run php composer install
+	@$(PHP) composer install
 	@$(call log_success,Done)
 
 db:
@@ -131,13 +131,13 @@ phpstan: vendor ## Analyze code with phpstan
 	@$(call log_success,Done)
 
 .PHONY: unit-test
-unit-test: vendor ## Run PhpUnit unit tests
+unit-test: vendor ## Run PhpUnit unit testsuite
 	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/phpunit -v --testsuite unit --testdox
 	@$(call log_success,Done)
 
 .PHONY: func-test
-func-test: start db-test ## Run PhpUnit func tests
+func-test: start db-test ## Run PhpUnit func testsuite
 	@$(call log,Running ...)
 	@$(PHP_EXEC) vendor/bin/phpunit -v --testsuite func --testdox
 	@$(call log_success,Done)
