@@ -36,9 +36,18 @@ ifeq ($(IS_DOCKER),true)
 	@$(call log_error,Target must be run outside docker)
 	exit 1;
 endif
-	@$(call log,Building the docker stack ...)
+	@$(call log,Building docker images ...)
 	@./dc build
 	touch var/docker.build
+	@$(call log_success,Done)
+
+pull: ## Pulling docker images
+ifeq ($(IS_DOCKER),true)
+	@$(call log_error,Target must be run outside docker)
+	exit 1;
+endif
+	@$(call log,Pulling docker images ...)
+	@./dc pull
 	@$(call log_success,Done)
 
 .PHONY: shell

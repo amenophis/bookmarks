@@ -13,6 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Build and pull docker images
+        run: make build pull
+
       - name: PHP CS Fixer
         run: make php-cs-fixer-check
 
