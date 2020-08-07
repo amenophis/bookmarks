@@ -15,76 +15,45 @@ define log_error
 	echo "[$(COLOR_ERROR)$(shell date +"%T")$(COLOR_RESET)][$(COLOR_ERROR)$(@)$(COLOR_RESET)] $(COLOR_ERROR)$(1)$(COLOR_RESET)"
 endef
 
-ifeq ($(IS_DOCKER),true)
-	PHP_RUN := php
-	PHP_EXEC := php
-else
-	PHP_RUN := ./dc run --no-deps --rm php
-	PHP_EXEC := ./dc exec php
-endif
+PHP_RUN := ./dc run --no-deps --rm php
+PHP_EXEC := ./dc exec php
 
 .DEFAULT_GOAL := help
 .PHONY: help
 help:
 	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $$(echo '$(MAKEFILE_LIST)' | cut -d ' ' -f2) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
-
 build: docker.build ## Build the docker stack
-
 docker.build: docker/Dockerfile
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
 	@$(call log,Building docker images ...)
 	@./dc build
 	touch docker.build
 	@$(call log_success,Done)
 
 pull: ## Pulling docker images
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
 	@$(call log,Pulling docker images ...)
 	@./dc pull
 	@$(call log_success,Done)
 
 .PHONY: shell
 shell: start ## Enter in the PHP container
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
 	@$(call log,Entering inside php container ...)
 	@./dc exec php ash
 
 .PHONY: start
 start: build vendor ## Start the docker stack
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
 	@$(call log,Starting the docker stack ...)
 	@./dc up -d
 	@$(call log_success,Done)
 
 .PHONY: stop
 stop: ## Stop the docker stack
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
 	@$(call log,Stopping the docker stack ...)
 	@./dc stop
 	@$(call log_success,Done)
 
 .PHONY: clean
 clean: stop ## Clean the docker stack
-ifeq ($(IS_DOCKER),true)
-	@$(call log_error,Target must be run outside docker)
-	exit 1;
-endif
 	@$(call log,Cleaning the docker stack ...)
 	@./dc down
 	rm docker.build
@@ -95,15 +64,17 @@ vendor: build composer.json composer.lock
 	@$(PHP_RUN) composer install
 	@$(call log_success,Done)
 
-db:
+db: start
 	@$(call log,Preparing db ...)
+	@$(PHP_RUN) waitforit -host=mysql -port=3306
 	@$(PHP_RUN) bin/console -v -n doctrine:database:drop --if-exists --force
 	@$(PHP_RUN) bin/console -v -n doctrine:database:create
 	@$(PHP_RUN) bin/console -v -n doctrine:migration:migrate
 	@$(call log_success,Done)
 
-db-test:
+db-test: start
 	@$(call log,Preparing test db ...)
+	@$(PHP_RUN) waitforit -host=mysql -port=3306
 	@$(PHP_RUN) bin/console --env=test -v -n doctrine:database:drop --if-exists --force
 	@$(PHP_RUN) bin/console --env=test -v -n doctrine:database:create
 	@$(PHP_RUN) bin/console --env=test -v -n doctrine:migration:migrate

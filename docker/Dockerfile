@@ -1,7 +1,5 @@
 FROM php:7.4.8-zts-alpine3.12
 
-ENV IS_DOCKER true
-
 COPY --from=composer:1.7.0 /usr/bin/composer /usr/bin/composer
 
 RUN apk add --no-cache make
