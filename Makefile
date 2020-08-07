@@ -113,25 +113,25 @@ db-test:
 qa: php-cs-fixer-check phpstan unit-test func-test ## Run QA targets
 
 .PHONY: php-cs-fixer-check
-php-cs-fixer-check: ## Check code style
+php-cs-fixer-check: vendor ## Check code style
 	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation
 	@$(call log_success,Done)
 
 .PHONY: php-cs-fixer-fix
-php-cs-fixer-fix: ## Auto fix code style
+php-cs-fixer-fix: vendor ## Auto fix code style
 	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/php-cs-fixer fix
 	@$(call log_success,Done)
 
 .PHONY: phpstan
-phpstan: ## Analyze code with phpstan
+phpstan: vendor ## Analyze code with phpstan
 	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/phpstan analyze
 	@$(call log_success,Done)
 
 .PHONY: unit-test
-unit-test: ## Run PhpUnit unit tests
+unit-test: vendor ## Run PhpUnit unit tests
 	@$(call log,Running ...)
 	@$(PHP_RUN) vendor/bin/phpunit -v --testsuite unit --testdox
 	@$(call log_success,Done)

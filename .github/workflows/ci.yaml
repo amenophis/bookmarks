@@ -13,6 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Installing vendors
+        run: make vendor
+
       - name: Build and pull docker images
         run: make build pull
 
