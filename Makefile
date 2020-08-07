@@ -16,7 +16,7 @@ define log_error
 endef
 
 PHP_RUN := ./dc run --no-deps --rm php
-PHP_EXEC := ./dc exec php
+PHP_EXEC := ./dc exec -T php
 
 .DEFAULT_GOAL := help
 .PHONY: help
