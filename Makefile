@@ -90,9 +90,9 @@ endif
 	rm docker.build
 	@$(call log_success,Done)
 
-vendor: composer.json composer.lock
+vendor: build composer.json composer.lock
 	@$(call log,Installing vendor ...)
-	@$(PHP) composer install
+	@$(PHP_RUN) composer install
 	@$(call log_success,Done)
 
 db:
@@ -139,6 +139,6 @@ unit-test: vendor ## Run PhpUnit unit testsuite
 .PHONY: func-test
 func-test: start db-test ## Run PhpUnit func testsuite
 	@$(call log,Running ...)
-	@$(PHP_EXEC) vendor/bin/phpunit -v --testsuite func --testdox
+	$(PHP_EXEC) vendor/bin/phpunit -v --testsuite func --testdox
 	@$(call log_success,Done)
 
