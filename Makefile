@@ -15,10 +15,10 @@ define log_error
 	echo "[$(COLOR_ERROR)$(shell date +"%T")$(COLOR_RESET)][$(COLOR_ERROR)$(@)$(COLOR_RESET)] $(COLOR_ERROR)$(1)$(COLOR_RESET)"
 endef
 
-FIXUID := $(shell id -u)
-FIXGID := $(shell id -g)
+CURRENT_USER := $(shell id -u)
+CURRENT_GROUP := $(shell id -g)
 
-DOCKER_COMPOSE := docker-compose
+DOCKER_COMPOSE := FIXUID=$(CURRENT_USER) FIXGID=$(CURRENT_GROUP) docker-compose
 PHP_RUN := $(DOCKER_COMPOSE) run --no-deps --rm php
 PHP_EXEC := $(DOCKER_COMPOSE) exec -T php
 
