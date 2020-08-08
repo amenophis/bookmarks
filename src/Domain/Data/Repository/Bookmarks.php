@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Data\Repository;
 
 use App\Domain\Data\Model\Bookmark;
+use App\Domain\Data\Repository\Exception\UnableToGetBookmarkException;
 
 interface Bookmarks
 {
@@ -14,4 +15,11 @@ interface Bookmarks
      * @return Bookmark[]
      */
     public function all(): array;
+
+    /**
+     * @throws UnableToGetBookmarkException
+     */
+    public function get(int $bookmarkId): Bookmark;
+
+    public function remove(Bookmark $bookmark): void;
 }

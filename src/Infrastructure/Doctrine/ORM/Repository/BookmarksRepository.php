@@ -6,6 +6,7 @@ namespace App\Infrastructure\Doctrine\ORM\Repository;
 
 use App\Domain\Data\Model\Bookmark;
 use App\Domain\Data\Repository\Bookmarks;
+use App\Domain\Data\Repository\Exception\UnableToGetBookmarkException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -28,5 +29,22 @@ class BookmarksRepository extends ServiceEntityRepository implements Bookmarks
     public function all(): array
     {
         return $this->findAll();
+    }
+
+    public function get(int $bookmarkId): Bookmark
+    {
+        /** @var null|Bookmark $bookmark */
+        $bookmark = $this->find($bookmarkId);
+        if (null === $bookmark) {
+            throw new UnableToGetBookmarkException($bookmarkId);
+        }
+
+        return $bookmark;
+    }
+
+    public function remove(Bookmark $bookmark): void
+    {
+        $this->_em->remove($bookmark);
+        $this->_em->flush();
     }
 }

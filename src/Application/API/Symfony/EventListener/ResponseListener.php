@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Application\API\Symfony\EventListener;
 
 use App\Application\API\Exception\InvalidPayloadException;
+use App\Application\API\Exception\NotFoundException;
 use App\Application\API\ResultInterface;
 use App\Application\API\Violations\ViolationListResult;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -49,16 +50,31 @@ class ResponseListener
     public function onKernelException(ExceptionEvent $event): void
     {
         $throwable = $event->getThrowable();
-        if (!$throwable instanceof InvalidPayloadException) {
-            return;
+        switch (true) {
+            case $throwable instanceof InvalidPayloadException:
+                $response = $this->handleInvalidPayloadException($throwable);
+            break;
+            case $throwable instanceof NotFoundException:
+                $response = $this->handleNotFoundException($throwable);
+            break;
+            default:
+                return;
         }
 
+        $event->setResponse($response);
+    }
+
+    private function handleInvalidPayloadException(InvalidPayloadException $e): JsonResponse
+    {
         $result = $this->serializer->serialize(
-            new ViolationListResult($throwable->getViolations()),
+            new ViolationListResult($e->getViolations()),
             'json'
         );
-        $response = new JsonResponse($result, 400, [], true);
+        return new JsonResponse($result, 400, [], true);
+    }
 
-        $event->setResponse($response);
+    private function handleNotFoundException(NotFoundException $e): JsonResponse
+    {
+        return new JsonResponse($e->getMessage(), 404);
     }
 }
