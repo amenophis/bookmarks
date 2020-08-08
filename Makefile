@@ -15,56 +15,64 @@ define log_error
 	echo "[$(COLOR_ERROR)$(shell date +"%T")$(COLOR_RESET)][$(COLOR_ERROR)$(@)$(COLOR_RESET)] $(COLOR_ERROR)$(1)$(COLOR_RESET)"
 endef
 
-PHP_RUN := ./dc run --no-deps --rm php
-PHP_EXEC := ./dc exec -T php
+FIXUID := $(shell id -u)
+FIXGID := $(shell id -g)
+
+DOCKER_COMPOSE := docker-compose
+PHP_RUN := $(DOCKER_COMPOSE) run --no-deps --rm php
+PHP_EXEC := $(DOCKER_COMPOSE) exec -T php
 
 .DEFAULT_GOAL := help
 .PHONY: help
 help:
 	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $$(echo '$(MAKEFILE_LIST)' | cut -d ' ' -f2) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
-build: docker.build ## Build the docker stack
-docker.build: docker/Dockerfile
+build: var/docker.build ## Build the docker stack
+var/docker.build: docker/Dockerfile
 	@$(call log,Building docker images ...)
-	@./dc build
-	touch docker.build
+	@$(DOCKER_COMPOSE) build
+	touch var/docker.build
 	@$(call log_success,Done)
 
+.PHONY: pull
 pull: ## Pulling docker images
 	@$(call log,Pulling docker images ...)
-	@./dc pull
+	@$(DOCKER_COMPOSE) pull
 	@$(call log_success,Done)
 
 .PHONY: shell
 shell: start ## Enter in the PHP container
 	@$(call log,Entering inside php container ...)
-	@./dc exec php ash
+	@$(DOCKER_COMPOSE) exec php ash
 
-.PHONY: start
-start: build vendor ## Start the docker stack
+start: var/docker.up ## Start the docker stack
+var/docker.up: var/docker.build vendor
 	@$(call log,Starting the docker stack ...)
-	@./dc up -d
+	@$(DOCKER_COMPOSE) up -d
+	touch var/docker.up
 	@$(call log_success,Done)
 
 .PHONY: stop
 stop: ## Stop the docker stack
 	@$(call log,Stopping the docker stack ...)
-	@./dc stop
+	@$(DOCKER_COMPOSE) stop
+	rm -rf var/docker.up
 	@$(call log_success,Done)
 
 .PHONY: clean
 clean: stop ## Clean the docker stack
 	@$(call log,Cleaning the docker stack ...)
-	@./dc down
-	rm docker.build
+	@$(DOCKER_COMPOSE) down
+	rm -rf var/* vendor/*
 	@$(call log_success,Done)
 
-vendor: build composer.json composer.lock
+vendor: var/docker.build composer.json composer.lock ## Install composer dependencies
 	@$(call log,Installing vendor ...)
 	@$(PHP_RUN) composer install
 	@$(call log_success,Done)
 
-db: start
+.PHONY: db
+db: var/docker.up
 	@$(call log,Preparing db ...)
 	@$(PHP_RUN) waitforit -host=mysql -port=3306
 	@$(PHP_RUN) bin/console -v -n doctrine:database:drop --if-exists --force
@@ -72,7 +80,8 @@ db: start
 	@$(PHP_RUN) bin/console -v -n doctrine:migration:migrate
 	@$(call log_success,Done)
 
-db-test: start
+.PHONY: db-test
+db-test: var/docker.up
 	@$(call log,Preparing test db ...)
 	@$(PHP_RUN) waitforit -host=mysql -port=3306
 	@$(PHP_RUN) bin/console --env=test -v -n doctrine:database:drop --if-exists --force
@@ -108,8 +117,7 @@ unit-test: vendor ## Run PhpUnit unit testsuite
 	@$(call log_success,Done)
 
 .PHONY: func-test
-func-test: start db-test ## Run PhpUnit func testsuite
+func-test: db-test ## Run PhpUnit func testsuite
 	@$(call log,Running ...)
 	$(PHP_EXEC) vendor/bin/phpunit -v --testsuite func --testdox
 	@$(call log_success,Done)
-
