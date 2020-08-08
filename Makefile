@@ -28,13 +28,13 @@ help:
 	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $$(echo '$(MAKEFILE_LIST)' | cut -d ' ' -f2) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
 var:
-	mkdir -p var
+	@mkdir -p var
 
 build: var/docker.build ## Build the docker stack
 var/docker.build: var docker/Dockerfile
 	@$(call log,Building docker images ...)
 	@$(DOCKER_COMPOSE) build
-	touch var/docker.build
+	@touch var/docker.build
 	@$(call log_success,Done)
 
 .PHONY: pull
@@ -52,26 +52,26 @@ start: var/docker.up ## Start the docker stack
 var/docker.up: var var/docker.build vendor
 	@$(call log,Starting the docker stack ...)
 	@$(DOCKER_COMPOSE) up -d
-	touch var/docker.up
+	@touch var/docker.up
 	@$(call log_success,Done)
 
 .PHONY: stop
 stop: ## Stop the docker stack
 	@$(call log,Stopping the docker stack ...)
 	@$(DOCKER_COMPOSE) stop
-	rm -rf var/docker.up
+	@rm -rf var/docker.up
 	@$(call log_success,Done)
 
 .PHONY: clean
 clean: stop ## Clean the docker stack
 	@$(call log,Cleaning the docker stack ...)
 	@$(DOCKER_COMPOSE) down
-	rm -rf var/ vendor/
+	@rm -rf var/ vendor/
 	@$(call log_success,Done)
 
 vendor: var/docker.build composer.json composer.lock ## Install composer dependencies
 	@$(call log,Installing vendor ...)
-	mkdir -p vendor
+	@mkdir -p vendor
 	@$(PHP_RUN) composer install
 	@$(call log_success,Done)
 
