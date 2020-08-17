@@ -70,6 +70,7 @@ class ResponseListener
             new ViolationListResult($e->getViolations()),
             'json'
         );
+
         return new JsonResponse($result, 400, [], true);
     }
 

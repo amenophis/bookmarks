@@ -12,5 +12,4 @@ class UnableToGetBookmarkException extends \Exception
     {
         parent::__construct("Unable to get Bookmark with id {$bookmarkId}", 0, $previous);
     }
-
 }

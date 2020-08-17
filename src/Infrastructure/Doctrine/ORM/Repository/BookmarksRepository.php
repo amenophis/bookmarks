@@ -33,7 +33,7 @@ class BookmarksRepository extends ServiceEntityRepository implements Bookmarks
 
     public function get(int $bookmarkId): Bookmark
     {
-        /** @var null|Bookmark $bookmark */
+        /** @var Bookmark|null $bookmark */
         $bookmark = $this->find($bookmarkId);
         if (null === $bookmark) {
             throw new UnableToGetBookmarkException($bookmarkId);

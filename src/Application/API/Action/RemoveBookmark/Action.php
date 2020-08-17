@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class Action
 {
     /**
-     * @Route("/bookmarks/{id}", methods={"DELETE"}, requirements={"id"="\d+"})
+     * @Route("/bookmarks/{id}", methods={"DELETE"}, requirements={"id": "\d+"})
      *
      * @throws NotFoundException
      */
