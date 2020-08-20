@@ -24,6 +24,6 @@ services:
       - { name: kernel.event_listener, event: kernel.exception }
 
   # Domain
-  App\Domain\URIMetadataReader\URIMetadataReader: '@App\Infrastructure\URIMetadataReader\OEmbedReader'
+  App\Domain\URIMetadata\URIMetadataReader: '@App\Infrastructure\URIMetadata\OEmbedReader'
 
   # Infrastructure

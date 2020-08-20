@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\URIMetadataReader;
+namespace App\Infrastructure\URIMetadata;
 
-use App\Domain\URIMetadataReader\URIMetadata;
-use App\Domain\URIMetadataReader\URIMetadataReader;
+use App\Domain\URIMetadata\URIMetadata;
+use App\Domain\URIMetadata\URIMetadataReader;
 use Embed\Embed;
 
 class OEmbedReader implements URIMetadataReader

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Data\Model;
 
-use App\Domain\URIMetadataReader\URIMetadata;
+use App\Domain\URIMetadata\URIMetadata;
 
 class VimeoBookmark extends Bookmark
 {
