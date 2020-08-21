@@ -20,7 +20,7 @@ CURRENT_GROUP := $(shell id -g)
 
 DOCKER_COMPOSE := FIXUID=$(CURRENT_USER) FIXGID=$(CURRENT_GROUP) docker-compose
 PHP_RUN := $(DOCKER_COMPOSE) run --no-deps --rm php
-PHP_EXEC := $(DOCKER_COMPOSE) exec -T php
+PHP_EXEC := $(DOCKER_COMPOSE) exec php
 
 .DEFAULT_GOAL := help
 .PHONY: help

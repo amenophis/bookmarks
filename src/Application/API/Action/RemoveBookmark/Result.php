@@ -10,6 +10,5 @@ class Result implements ResultInterface
 {
     public function jsonSerialize()
     {
-        return null;
     }
 }

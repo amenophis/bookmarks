@@ -8,10 +8,12 @@ use App\Domain\URIMetadata\URIMetadata;
 use App\Infrastructure\URIMetadata\TestReader;
 use Coduo\PHPMatcher\PHPUnit\PHPMatcherAssertions;
 use Func\App\FunctionalTestCase;
+use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
 
 class CreateBookmarkTest extends FunctionalTestCase
 {
     use PHPMatcherAssertions;
+    use RefreshDatabaseTrait;
 
     /**
      * @dataProvider provideCreateValidationErrors
