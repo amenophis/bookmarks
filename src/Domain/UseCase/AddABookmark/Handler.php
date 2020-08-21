@@ -25,7 +25,6 @@ class Handler
     public function __invoke(Input $input): Output
     {
         $bookmark = $this->factory->createBookmarkFromUrl($input->getUrl());
-
         $this->bookmarks->save($bookmark);
 
         return new Output($bookmark);

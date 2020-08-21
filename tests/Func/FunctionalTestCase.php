@@ -68,6 +68,20 @@ abstract class FunctionalTestCase extends WebTestCase
         $this->assertJsonResponse();
     }
 
+    protected function delete(string $url): void
+    {
+        self::$client->request(
+            'DELETE',
+            $url,
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'ACCEPT'       => 'application/json',
+            ],
+        );
+    }
+
     protected static function getResponse(): Response
     {
         return static::$client->getResponse();
@@ -92,6 +106,11 @@ abstract class FunctionalTestCase extends WebTestCase
     protected function assertJsonResponse(): void
     {
         $this->assertSame('application/json', static::getResponse()->headers->get('Content-Type'));
+    }
+
+    protected function assertNotFoundResponse(): void
+    {
+        static::assertResponseStatusCodeSame(404);
     }
 
     protected function assertOKResponse(): void

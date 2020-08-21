@@ -18,9 +18,10 @@ endef
 CURRENT_USER := $(shell id -u)
 CURRENT_GROUP := $(shell id -g)
 
+TTY   := $(shell tty -s || echo '-T')
 DOCKER_COMPOSE := FIXUID=$(CURRENT_USER) FIXGID=$(CURRENT_GROUP) docker-compose
-PHP_RUN := $(DOCKER_COMPOSE) run --no-deps --rm php
-PHP_EXEC := $(DOCKER_COMPOSE) exec -T php
+PHP_RUN := $(DOCKER_COMPOSE) run $(TTY) --no-deps --rm php
+PHP_EXEC := $(DOCKER_COMPOSE) exec $(TTY) php
 
 .DEFAULT_GOAL := help
 .PHONY: help
@@ -99,13 +100,13 @@ qa: php-cs-fixer-check phpstan unit-test func-test ## Run QA targets
 .PHONY: php-cs-fixer-check
 php-cs-fixer-check: vendor ## Check code style
 	@$(call log,Running ...)
-	@$(PHP_RUN) vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation
+	@$(PHP_RUN) vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run
 	@$(call log_success,Done)
 
 .PHONY: php-cs-fixer-fix
 php-cs-fixer-fix: vendor ## Auto fix code style
 	@$(call log,Running ...)
-	@$(PHP_RUN) vendor/bin/php-cs-fixer fix
+	@$(PHP_RUN) vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v
 	@$(call log_success,Done)
 
 .PHONY: phpstan

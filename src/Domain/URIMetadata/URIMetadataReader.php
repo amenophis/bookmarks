@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\URIMetadataReader;
+namespace App\Domain\URIMetadata;
 
 interface URIMetadataReader
 {

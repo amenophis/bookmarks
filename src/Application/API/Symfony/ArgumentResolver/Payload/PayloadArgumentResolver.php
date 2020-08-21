@@ -32,7 +32,7 @@ class PayloadArgumentResolver implements ArgumentValueResolverInterface
     }
 
     /**
-     *@throws InvalidPayloadException
+     * @throws InvalidPayloadException
      *
      * @return iterable<PayloadInterface>
      */

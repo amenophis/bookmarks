@@ -30,6 +30,7 @@
         "coduo/php-matcher": "^4.0",
         "dama/doctrine-test-bundle": "^6.3",
         "friendsofphp/php-cs-fixer": "^2.16",
+        "hautelook/alice-bundle": "^2.7",
         "jangregor/phpstan-prophecy": "^0.8.0",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.0",

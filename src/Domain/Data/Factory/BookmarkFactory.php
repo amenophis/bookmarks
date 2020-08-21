@@ -9,7 +9,7 @@ use App\Domain\Data\Factory\Exception\UnsupportedBookmarkTypeException;
 use App\Domain\Data\Model\Bookmark;
 use App\Domain\Data\Model\FlickrBookmark;
 use App\Domain\Data\Model\VimeoBookmark;
-use App\Domain\URIMetadataReader\URIMetadataReader;
+use App\Domain\URIMetadata\URIMetadataReader;
 
 class BookmarkFactory
 {
