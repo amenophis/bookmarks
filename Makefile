@@ -99,13 +99,13 @@ qa: php-cs-fixer-check phpstan unit-test func-test ## Run QA targets
 .PHONY: php-cs-fixer-check
 php-cs-fixer-check: vendor ## Check code style
 	@$(call log,Running ...)
-	@$(PHP_RUN) vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation
+	@$(PHP_RUN) vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run
 	@$(call log_success,Done)
 
 .PHONY: php-cs-fixer-fix
 php-cs-fixer-fix: vendor ## Auto fix code style
 	@$(call log,Running ...)
-	@$(PHP_RUN) vendor/bin/php-cs-fixer fix
+	@$(PHP_RUN) vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v
 	@$(call log_success,Done)
 
 .PHONY: phpstan

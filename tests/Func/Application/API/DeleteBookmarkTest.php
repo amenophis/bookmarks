@@ -24,7 +24,6 @@ class DeleteBookmarkTest extends FunctionalTestCase
     {
         $this->delete('/bookmarks/1');
 
-
         $this->assertEmptyResponse();
     }
 }

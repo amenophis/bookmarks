@@ -68,7 +68,6 @@ abstract class FunctionalTestCase extends WebTestCase
         $this->assertJsonResponse();
     }
 
-
     protected function delete(string $url): void
     {
         self::$client->request(

@@ -42,7 +42,7 @@ class ResponseListener
                 break;
         }
 
-        $json = $this->serializer->serialize($result, 'json');
+        $json     = $this->serializer->serialize($result, 'json');
         $response = new JsonResponse($json, $statusCode, [], true);
 
         $event->setResponse($response);

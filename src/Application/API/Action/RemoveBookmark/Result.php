@@ -8,7 +8,7 @@ use App\Application\API\ResultInterface;
 
 class Result implements ResultInterface
 {
-    public function jsonSerialize()
+    public function jsonSerialize(): void
     {
     }
 }
