@@ -18,9 +18,10 @@ endef
 CURRENT_USER := $(shell id -u)
 CURRENT_GROUP := $(shell id -g)
 
+TTY   := $(shell tty -s || echo '-T')
 DOCKER_COMPOSE := FIXUID=$(CURRENT_USER) FIXGID=$(CURRENT_GROUP) docker-compose
-PHP_RUN := $(DOCKER_COMPOSE) run --no-deps --rm php
-PHP_EXEC := $(DOCKER_COMPOSE) exec php
+PHP_RUN := $(DOCKER_COMPOSE) run $(TTY) --no-deps --rm php
+PHP_EXEC := $(DOCKER_COMPOSE) exec $(TTY) php
 
 .DEFAULT_GOAL := help
 .PHONY: help
