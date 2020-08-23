@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\API\Symfony\EventListener;
 
+use App\Application\API\Exception\DomainException;
 use App\Application\API\Exception\InvalidPayloadException;
 use App\Application\API\Exception\NotFoundException;
 use App\Application\API\ResultInterface;
@@ -30,20 +31,8 @@ class ResponseListener
             return;
         }
 
-        switch ($event->getRequest()->getMethod()) {
-            case 'POST':
-                $statusCode = 201;
-                break;
-            case 'DELETE':
-                $statusCode = 204;
-                break;
-            default:
-                $statusCode = 200;
-                break;
-        }
-
         $json     = $this->serializer->serialize($result, 'json');
-        $response = new JsonResponse($json, $statusCode, [], true);
+        $response = new JsonResponse($json, $result->getStatusCode(), [], true);
 
         $event->setResponse($response);
     }
@@ -58,6 +47,9 @@ class ResponseListener
             case $throwable instanceof NotFoundException:
                 $response = $this->handleNotFoundException($throwable);
             break;
+            case $throwable instanceof DomainException:
+                $response = $this->handleDomainException($throwable);
+                break;
             default:
                 return;
         }
@@ -78,5 +70,10 @@ class ResponseListener
     private function handleNotFoundException(NotFoundException $e): JsonResponse
     {
         return new JsonResponse($e->getMessage(), 404);
+    }
+
+    private function handleDomainException(DomainException $e): JsonResponse
+    {
+        return new JsonResponse($e->getMessage(), 400);
     }
 }

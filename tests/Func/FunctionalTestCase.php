@@ -47,8 +47,6 @@ abstract class FunctionalTestCase extends WebTestCase
                 'ACCEPT' => 'application/json',
             ]
         );
-
-        $this->assertJsonResponse();
     }
 
     protected function postJson(string $url, array $payload = [], array $parameters = []): void
@@ -64,8 +62,6 @@ abstract class FunctionalTestCase extends WebTestCase
             ],
             json_encode($payload)
         );
-
-        $this->assertJsonResponse();
     }
 
     protected function delete(string $url): void
@@ -129,7 +125,7 @@ abstract class FunctionalTestCase extends WebTestCase
         $this->assertSame('', $this->getResponseContent());
     }
 
-    protected function assertBadRequestResponse(array $expectedResponse): void
+    protected function assertBadRequestResponse($expectedResponse): void
     {
         $this->assertResponseStatusCodeSame(400);
         $this->assertJsonStringEqualsJsonString(

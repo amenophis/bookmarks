@@ -4,25 +4,56 @@ declare(strict_types=1);
 
 namespace App\Domain\Data\Model;
 
+use App\Domain\Data\Model\Exception\KeywordAlreadyExistsException;
+use App\Domain\Data\Model\Exception\KeywordDoesntExistsException;
 use App\Domain\URIMetadata\URIMetadata;
 
 abstract class Bookmark
 {
-    private int $id;
+    private BookmarkId $id;
     private string $url;
     private ?string $title;
     private ?string $author;
     private \DateTimeInterface $addedAt;
+    /**
+     * @var string[]
+     */
+    private array $keywords = [];
 
-    protected function __construct(string $url, \DateTimeInterface $addedAt, URIMetadata $metadata)
+    protected function __construct(BookmarkId $id, string $url, \DateTimeInterface $addedAt, URIMetadata $metadata)
     {
+        $this->id      = $id;
         $this->url     = $url;
         $this->title   = (string) $metadata->get('title');
         $this->author  = (string) $metadata->get('author');
         $this->addedAt = $addedAt;
     }
 
-    public function getId(): int
+    /**
+     * @throws KeywordAlreadyExistsException
+     */
+    public function addKeyword(string $keyword): void
+    {
+        if (\in_array($keyword, $this->keywords, true)) {
+            throw new KeywordAlreadyExistsException($keyword);
+        }
+
+        $this->keywords[] = $keyword;
+    }
+
+    /**
+     * @throws KeywordDoesntExistsException
+     */
+    public function removeKeyword(string $keyword): void
+    {
+        if (!\in_array($keyword, $this->keywords, true)) {
+            throw new KeywordDoesntExistsException($keyword);
+        }
+
+        $this->keywords = array_diff($this->keywords, [$keyword]);
+    }
+
+    public function getId(): BookmarkId
     {
         return $this->id;
     }
@@ -45,5 +76,13 @@ abstract class Bookmark
     public function getAddedAt(): \DateTimeInterface
     {
         return $this->addedAt;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getKeywords(): array
+    {
+        return $this->keywords;
     }
 }
