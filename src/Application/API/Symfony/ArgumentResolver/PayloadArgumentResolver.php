@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Application\API\Symfony\ArgumentResolver\Payload;
+namespace App\Application\API\Symfony\ArgumentResolver;
 
 use App\Application\API\Exception\InvalidPayloadException;
 use App\Application\API\PayloadInterface;

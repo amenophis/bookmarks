@@ -11,14 +11,13 @@
             <discriminator-mapping value="flickr" class="App\Domain\Data\Model\FlickrBookmark" />
         </discriminator-map>
 
-        <id name="id" type="integer" column="id">
-            <generator strategy="AUTO"/>
-        </id>
+        <id name="id" type="bookmark_id" column="id" />
 
         <field name="url" type="text" />
         <field name="title" type="string" nullable="true" />
         <field name="author" type="string" nullable="true" />
         <field name="addedAt" type="datetime_immutable" />
+        <field name="keywords" type="json_array" />
     </entity>
 
 </doctrine-mapping>

@@ -6,4 +6,5 @@ namespace App\Application\API;
 
 interface ResultInterface extends \JsonSerializable
 {
+    public function getStatusCode(): int;
 }

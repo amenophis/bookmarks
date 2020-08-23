@@ -3,7 +3,6 @@ parameters:
 services:
   _defaults:
     autowire: true
-    autoconfigure: true
 
   # Global
   App\:
@@ -14,9 +13,10 @@ services:
     resource: '../src/Application/API/Action/**/Action.php'
     tags: ['controller.service_arguments']
 
-  App\Application\API\Symfony\ArgumentResolver\Payload\PayloadArgumentResolver:
+  App\Application\API\Symfony\ArgumentResolver\:
+    resource: '../src/Application/API/Symfony/ArgumentResolver/*'
     tags:
-      - { name: controller.argument_value_resolver, priority: 50 }
+      - { name: controller.argument_value_resolver, priority: 255 }
 
   App\Application\API\Symfony\EventListener\ResponseListener:
     tags:
@@ -25,5 +25,6 @@ services:
 
   # Domain
   App\Domain\URIMetadata\URIMetadataReader: '@App\Infrastructure\URIMetadata\OEmbedReader'
+  App\Domain\IdGenerator: '@App\Infrastructure\UuidIdGenerator'
 
   # Infrastructure

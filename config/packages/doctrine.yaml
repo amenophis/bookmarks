@@ -6,6 +6,8 @@ doctrine:
     default_table_options:
       collate: utf8mb4_unicode_ci
     profiling_collect_backtrace: '%kernel.debug%'
+    types:
+      bookmark_id: 'App\Infrastructure\Doctrine\Type\BookmarkIdType'
   orm:
     auto_generate_proxy_classes: true
     naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware

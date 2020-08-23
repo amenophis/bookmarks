@@ -1,29 +1,3 @@
-parameters:
-
 services:
-  _defaults:
-    autowire: true
-    autoconfigure: true
-
-  # Global
-  App\:
-    resource: '../src/'
-
-  # Application
-  App\Application\API\Action\:
-    resource: '../src/Application/API/Action/**/Action.php'
-    tags: ['controller.service_arguments']
-
-  App\Application\API\Symfony\ArgumentResolver\Payload\PayloadArgumentResolver:
-    tags:
-      - { name: controller.argument_value_resolver, priority: 50 }
-
-  App\Application\API\Symfony\EventListener\ResponseListener:
-    tags:
-      - { name: kernel.event_listener, event: kernel.view }
-      - { name: kernel.event_listener, event: kernel.exception }
-
-  # Domain
   App\Domain\URIMetadata\URIMetadataReader: '@App\Infrastructure\URIMetadata\TestReader'
-
-  # Infrastructure
+  App\Domain\IdGenerator: '@App\Infrastructure\FakeIdGenerator'

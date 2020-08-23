@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Doctrine\ORM\Repository;
 
 use App\Domain\Data\Model\Bookmark;
+use App\Domain\Data\Model\BookmarkId;
 use App\Domain\Data\Repository\Bookmarks;
 use App\Domain\Data\Repository\Exception\UnableToGetBookmarkException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -31,7 +32,7 @@ class BookmarksRepository extends ServiceEntityRepository implements Bookmarks
         return $this->findAll();
     }
 
-    public function get(int $bookmarkId): Bookmark
+    public function get(BookmarkId $bookmarkId): Bookmark
     {
         /** @var Bookmark|null $bookmark */
         $bookmark = $this->find($bookmarkId);

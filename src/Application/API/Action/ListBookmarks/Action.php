@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\API\Action\ListBookmarks;
 
+use App\Application\API\Result\ResultFactory;
 use App\Domain\UseCase\ListBookmarks;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -16,6 +17,11 @@ class Action
     {
         $output = $handler->__invoke(new ListBookmarks\Input());
 
-        return $resultFactory->createResultFromBookmark($output->getBookmarks());
+        $bookmarkResults = [];
+        foreach ($output->getBookmarks() as $bookmark) {
+            $bookmarkResults[] = $resultFactory->createResultFromBookmark($bookmark);
+        }
+
+        return new Result($bookmarkResults);
     }
 }

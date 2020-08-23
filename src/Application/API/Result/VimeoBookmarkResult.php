@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Application\API\Action\ListBookmarks\Result;
+namespace App\Application\API\Result;
+
+use App\Domain\Data\Model\VimeoBookmark;
 
 class VimeoBookmarkResult extends BookmarkResult
 {
@@ -10,13 +12,13 @@ class VimeoBookmarkResult extends BookmarkResult
     private int $height;
     private int $duration;
 
-    public function __construct(int $id, string $url, ?string $title, ?string $author, \DateTimeInterface $addedAt, int $width, int $height, int $duration)
+    public function __construct(VimeoBookmark $bookmark)
     {
-        parent::__construct($id, $url, $title, $author, $addedAt);
+        parent::__construct($bookmark);
 
-        $this->width    = $width;
-        $this->height   = $height;
-        $this->duration = $duration;
+        $this->width    = $bookmark->getWidth();
+        $this->height   = $bookmark->getHeight();
+        $this->duration = $bookmark->getDuration();
     }
 
     public function jsonSerialize()

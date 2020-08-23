@@ -12,9 +12,9 @@ class VimeoBookmark extends Bookmark
     private int $height;
     private int $duration;
 
-    public static function create(string $url, \DateTimeInterface $addedAt, URIMetadata $metadata): self
+    public static function create(BookmarkId $id, string $url, \DateTimeInterface $addedAt, URIMetadata $metadata): self
     {
-        $self           = new self($url, $addedAt, $metadata);
+        $self           = new self($id, $url, $addedAt, $metadata);
         $self->width    = (int) $metadata->get('width');
         $self->height   = (int) $metadata->get('height');
         $self->duration = (int) $metadata->get('duration');
