@@ -9,11 +9,6 @@ use App\Application\API\ResultInterface;
 
 class Result implements ResultInterface
 {
-    public function getStatusCode(): int
-    {
-        return 200;
-    }
-
     /**
      * @var BookmarkResult[]
      */
@@ -27,7 +22,7 @@ class Result implements ResultInterface
         $this->bookmarks = $bookmarks;
     }
 
-    public function jsonSerialize()
+    public function getResponse()
     {
         return $this->bookmarks;
     }

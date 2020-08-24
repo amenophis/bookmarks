@@ -1,0 +1,12 @@
+nelmio_api_doc:
+  documentation:
+    info:
+      title: Bookmarks
+      description: This is the bookmarks API documentation
+      version: 1.0.0
+  areas:
+    path_patterns:
+      - ^/bookmarks # Accepts routes under /bookmarks
+  models:
+    names:
+      - { alias: CreateBookmarkPayload, type: App\Application\API\Action\CreateBookmark\Payload }

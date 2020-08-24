@@ -8,8 +8,8 @@ use App\Domain\Data\Model\FlickrBookmark;
 
 class FlickrBookmarkResult extends BookmarkResult
 {
-    private int $width;
-    private int $height;
+    public int $width;
+    public int $height;
 
     public function __construct(FlickrBookmark $bookmark)
     {
@@ -17,13 +17,5 @@ class FlickrBookmarkResult extends BookmarkResult
 
         $this->width  = $bookmark->getWidth();
         $this->height = $bookmark->getHeight();
-    }
-
-    public function jsonSerialize()
-    {
-        return parent::jsonSerialize() + [
-            'width'  => $this->width,
-            'height' => $this->height,
-        ];
     }
 }

@@ -31,9 +31,20 @@ class ResponseListener
             return;
         }
 
-        $json     = $this->serializer->serialize($result, 'json');
-        $response = new JsonResponse($json, $result->getStatusCode(), [], true);
+        if (null === $result->getResponse()) {
+            $response = new JsonResponse(null, 204);
+            $event->setResponse($response);
 
+            return;
+        }
+
+        $statusCode = 200;
+        if ('POST' === $event->getRequest()->getMethod()) {
+            $statusCode = 201;
+        }
+        $json = $this->serializer->serialize($result->getResponse(), 'json');
+
+        $response = new JsonResponse($json, $statusCode, [], true);
         $event->setResponse($response);
     }
 

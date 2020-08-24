@@ -33,8 +33,8 @@ class CreateBookmarkTest extends FunctionalTestCase
             [
                 'violations' => [
                     [
-                        'message'       => 'This value should not be blank.',
-                        'property_path' => 'url',
+                        'message'      => 'This value should not be blank.',
+                        'propertyPath' => 'url',
                     ],
                 ],
             ],
@@ -47,8 +47,8 @@ class CreateBookmarkTest extends FunctionalTestCase
             [
                 'violations' => [
                     [
-                        'message'       => 'This value is not a valid URL.',
-                        'property_path' => 'url',
+                        'message'      => 'This value is not a valid URL.',
+                        'propertyPath' => 'url',
                     ],
                 ],
             ],
@@ -61,8 +61,8 @@ class CreateBookmarkTest extends FunctionalTestCase
             [
                 'violations' => [
                     [
-                        'message'       => 'This value is not a valid URL.',
-                        'property_path' => 'url',
+                        'message'      => 'This value is not a valid URL.',
+                        'propertyPath' => 'url',
                     ],
                 ],
             ],

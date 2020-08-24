@@ -1,30 +1,39 @@
-# Simple Symfony Docker starter
+# Bookmarks API
 
-You only need `docker` and `docker-compose` installed
+You only need `make`, `docker` and `docker-compose` installed to start the API development environment.
 
-## Start server
+## Start the API
 
-The following command will start the development server at URL http://127.0.0.1:8000/:
-
-```bash
-./dc up # dc is a wrapper around docker-compose that allows services to be run under the current user
-```
-
-## Useful commands
+The following command will start the API.
+You can browse the OpenAPI documentation at http://127.0.0.1:8000/ :
 
 ```bash
-# Composer is installed into the php container, it can be invoked as such:
-./dc exec php composer [command]
-
-# This is a Symfony Flex project, you can install any Flex recipe
-./dc exec php composer req annotations
-
-# Symfony console
-./dc exec php bin/console
-
-# Start the MySQL cli
-./dc exec mysql mysql symfony
-
-# Stop all services
-./dc down
+make start
 ```
+
+## Makefile targets
+
+You can get available targets by running:
+```bash
+make
+```
+
+```bash
+build                          Build the docker stack
+pull                           Pulling docker images
+shell                          Enter in the PHP container
+start                          Start the docker stack
+stop                           Stop the docker stack
+clean                          Clean the docker stack
+vendor                         Install composer dependencies
+qa                             Run QA targets
+php-cs-fixer-check             Check code style
+php-cs-fixer-fix               Auto fix code style
+phpstan                        Analyze code with phpstan
+unit-test                      Run PhpUnit unit testsuite
+func-test                      Run PhpUnit func testsuite
+```
+
+## Postman Collection
+
+You can import the postman collection (`./postman_collection.json`) to play with the API locally in the file.
