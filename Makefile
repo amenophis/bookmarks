@@ -54,6 +54,7 @@ var/docker.up: var var/docker.build vendor
 	@$(call log,Starting the docker stack ...)
 	@$(DOCKER_COMPOSE) up -d
 	@touch var/docker.up
+	@$(call log,View to the API documentation: http://127.0.0.1:8000/)
 	@$(call log_success,Done)
 
 .PHONY: stop

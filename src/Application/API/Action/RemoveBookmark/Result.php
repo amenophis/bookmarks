@@ -8,12 +8,7 @@ use App\Application\API\ResultInterface;
 
 class Result implements ResultInterface
 {
-    public function getStatusCode(): int
-    {
-        return 204;
-    }
-
-    public function jsonSerialize(): void
+    public function getResponse(): void
     {
     }
 }

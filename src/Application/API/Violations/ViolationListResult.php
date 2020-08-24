@@ -7,12 +7,12 @@ namespace App\Application\API\Violations;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
-class ViolationListResult implements \JsonSerializable
+class ViolationListResult
 {
     /**
      * @var ViolationResult[]
      */
-    public $violations = [];
+    public array $violations = [];
 
     /**
      * @param ConstraintViolationListInterface<ConstraintViolationInterface> $validationErrors
@@ -22,12 +22,5 @@ class ViolationListResult implements \JsonSerializable
         foreach ($validationErrors as $validationError) {
             $this->violations[] = new ViolationResult($validationError);
         }
-    }
-
-    public function jsonSerialize()
-    {
-        return [
-            'violations' => $this->violations,
-        ];
     }
 }

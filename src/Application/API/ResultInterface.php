@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\API;
 
-interface ResultInterface extends \JsonSerializable
+interface ResultInterface
 {
-    public function getStatusCode(): int;
+    /**
+     * @return mixed
+     */
+    public function getResponse();
 }

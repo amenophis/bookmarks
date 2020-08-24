@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Application\API\Result;
 
 use App\Domain\Data\Model\VimeoBookmark;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Schema
+ */
 class VimeoBookmarkResult extends BookmarkResult
 {
-    private int $width;
-    private int $height;
-    private int $duration;
+    public int $width;
+    public int $height;
+    public int $duration;
 
     public function __construct(VimeoBookmark $bookmark)
     {
@@ -19,14 +23,5 @@ class VimeoBookmarkResult extends BookmarkResult
         $this->width    = $bookmark->getWidth();
         $this->height   = $bookmark->getHeight();
         $this->duration = $bookmark->getDuration();
-    }
-
-    public function jsonSerialize()
-    {
-        return parent::jsonSerialize() + [
-            'width'    => $this->width,
-            'height'   => $this->height,
-            'duration' => $this->duration,
-        ];
     }
 }

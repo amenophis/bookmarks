@@ -6,17 +6,17 @@ namespace App\Application\API\Result;
 
 use App\Domain\Data\Model\Bookmark;
 
-class BookmarkResult implements \JsonSerializable
+abstract class BookmarkResult
 {
-    private string $id;
-    private string $url;
-    private ?string $title;
-    private ?string $author;
-    private \DateTimeInterface $addedAt;
+    public string $id;
+    public string $url;
+    public ?string $title;
+    public ?string $author;
+    public \DateTimeInterface $addedAt;
     /**
      * @var string[]
      */
-    private array $keywords;
+    public array $keywords;
 
     public function __construct(Bookmark $bookmark)
     {
@@ -26,17 +26,5 @@ class BookmarkResult implements \JsonSerializable
         $this->author   = $bookmark->getAuthor();
         $this->addedAt  = $bookmark->getAddedAt();
         $this->keywords = $bookmark->getKeywords();
-    }
-
-    public function jsonSerialize()
-    {
-        return [
-            'id'       => $this->id,
-            'url'      => $this->url,
-            'title'    => $this->title,
-            'author'   => $this->author,
-            'addedAt'  => $this->addedAt,
-            'keywords' => $this->keywords,
-        ];
     }
 }
