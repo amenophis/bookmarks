@@ -13,7 +13,7 @@ make start
 
 ## Makefile targets
 
-You can get the following liste by simply run:
+You can get available targets by running:
 ```bash
 make
 ```
