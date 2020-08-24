@@ -33,3 +33,7 @@ phpstan                        Analyze code with phpstan
 unit-test                      Run PhpUnit unit testsuite
 func-test                      Run PhpUnit func testsuite
 ```
+
+## Postman Collection
+
+You can import the postman collection (`./postman_collection.json`) to play with the API locally in the file.
