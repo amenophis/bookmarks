@@ -11,6 +11,28 @@ You can browse the OpenAPI documentation at http://127.0.0.1:8000/ :
 make start
 ```
 
+## QA tools
+
+Several Quality tools are configured in the project (PHP CS Fixer, PHPStan, PHPUnit).
+You can execute them running this command: 
+```bash
+make qa
+```
+
+## Stop the API
+
+You can stop the API running this command:
+```bash
+make stop
+```
+
+## Clean the development environment
+
+You can clean the development environment (docker images, vendor, ...) running this command:
+```bash
+make clean
+```
+
 ## Makefile targets
 
 You can get available targets by running:

@@ -15,6 +15,11 @@ define log_error
 	echo "[$(COLOR_ERROR)$(shell date +"%T")$(COLOR_RESET)][$(COLOR_ERROR)$(@)$(COLOR_RESET)] $(COLOR_ERROR)$(1)$(COLOR_RESET)"
 endef
 
+define touch
+	$(shell mkdir -p $(shell dirname $(1)))
+	$(shell touch $(1))
+endef
+
 CURRENT_USER := $(shell id -u)
 CURRENT_GROUP := $(shell id -g)
 
@@ -28,14 +33,11 @@ PHP_EXEC := $(DOCKER_COMPOSE) exec $(TTY) php
 help:
 	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $$(echo '$(MAKEFILE_LIST)' | cut -d ' ' -f2) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
-var:
-	@mkdir -p var
-
 build: var/docker.build ## Build the docker stack
-var/docker.build: var docker/Dockerfile
+var/docker.build: docker/Dockerfile
 	@$(call log,Building docker images ...)
 	@$(DOCKER_COMPOSE) build
-	@touch var/docker.build
+	@$(call touch,var/docker.build)
 	@$(call log_success,Done)
 
 .PHONY: pull
@@ -50,10 +52,11 @@ shell: start ## Enter in the PHP container
 	@$(DOCKER_COMPOSE) exec php ash
 
 start: var/docker.up ## Start the docker stack
-var/docker.up: var var/docker.build vendor
+var/docker.up: var/docker.build vendor
 	@$(call log,Starting the docker stack ...)
 	@$(DOCKER_COMPOSE) up -d
-	@touch var/docker.up
+	@$(call touch,var/docker.up)
+	$(MAKE) db
 	@$(call log,View to the API documentation: http://127.0.0.1:8000/)
 	@$(call log_success,Done)
 
@@ -78,7 +81,7 @@ vendor: var/docker.build composer.json composer.lock ## Install composer depende
 	@$(call log_success,Done)
 
 .PHONY: db
-db: var/docker.up
+db: var/docker.build
 	@$(call log,Preparing db ...)
 	@$(PHP_RUN) waitforit -host=mysql -port=3306
 	@$(PHP_RUN) bin/console -v -n doctrine:database:drop --if-exists --force
@@ -87,7 +90,7 @@ db: var/docker.up
 	@$(call log_success,Done)
 
 .PHONY: db-test
-db-test: var/docker.up
+db-test: var/docker.build
 	@$(call log,Preparing test db ...)
 	@$(PHP_RUN) waitforit -host=mysql -port=3306
 	@$(PHP_RUN) bin/console --env=test -v -n doctrine:database:drop --if-exists --force
@@ -123,7 +126,8 @@ unit-test: vendor ## Run PhpUnit unit testsuite
 	@$(call log_success,Done)
 
 .PHONY: func-test
-func-test: db-test ## Run PhpUnit func testsuite
+func-test: var/docker.up## Run PhpUnit func testsuite
 	@$(call log,Running ...)
+	$(MAKE) db-test
 	$(PHP_EXEC) vendor/bin/phpunit -v --testsuite func --testdox
 	@$(call log_success,Done)
